@@ -7,9 +7,11 @@
 
 import UIKit
 import MapKit
-
+import Combine
 class MapsViewController: UIViewController {
     
+    var subscriptions: Set<AnyCancellable> = []
+    var landmarks: [Landmark] = []
     @IBOutlet weak var mapView: MKMapView!
 
 
@@ -28,7 +30,15 @@ class MapsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+    
         // Do any additional setup after loading the view.
+        Landmarks.load().sink { completion in
+            print(completion)
+        } receiveValue: {[weak self] landmarks in
+            self?.landmarks = landmarks
+            print(landmarks)
+        }.store(in: &subscriptions)
+
     }
 
 
@@ -37,4 +47,5 @@ class MapsViewController: UIViewController {
 
 // github token:
 
+// the new password for github push -u origin main is the token for this app
 // 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
