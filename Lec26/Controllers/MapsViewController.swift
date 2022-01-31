@@ -11,10 +11,16 @@ import Combine
 class MapsViewController: UIViewController {
     
     var subscriptions: Set<AnyCancellable> = []
-    var landmarks: [Landmark] = []
+    var landmarks: [Landmark] = []{
+        didSet{
+            //add annotations:
+            mapView.addAnnotations(landmarks.map(LandmarkAnnotation.init))
+        }
+    }
+    
     @IBOutlet weak var mapView: MKMapView!
-
-
+    
+    
     @IBAction func mapTypeChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex{
         case 0:
@@ -30,7 +36,7 @@ class MapsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
+        
         // Do any additional setup after loading the view.
         Landmarks.load().sink { completion in
             print(completion)
@@ -38,10 +44,25 @@ class MapsViewController: UIViewController {
             self?.landmarks = landmarks
             print(landmarks)
         }.store(in: &subscriptions)
-
+        
+        mapView.delegate = self
     }
+    
+    
+}
 
-
+extension MapsViewController: MKMapViewDelegate{
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        guard let landmarkAnnotation = annotation as? LandmarkAnnotation else {return nil}
+        var av = mapView.dequeueReusableAnnotationView(withIdentifier: "Landmark") as? MKMarkerAnnotationView
+        
+        if av == nil{
+            av = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "Landmark")
+        }
+        av?.markerTintColor = landmarkAnnotation.landmark.color
+        
+        return av
+    }
 }
 
 

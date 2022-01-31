@@ -6,11 +6,8 @@
 //
 
 
-import Foundation
-
-// try use with array struct that holds the landmark
-// and remove the [Landmark] from the decoder
-
+import UIKit
+import CoreLocation
 
 
 struct Landmark: Codable{
@@ -33,4 +30,53 @@ struct Landmark: Codable{
     let x: Double
     let y: Double
     
+}
+
+
+extension Landmark{
+    var coordinate: CLLocationCoordinate2D{
+        .init(latitude: y, longitude: x)
+    }
+    
+    var location: CLLocation{
+         CLLocation(latitude: y, longitude: x)
+    }
+   
+    var type: Types{
+        Types.type(for: self.name)
+    }
+   
+    var color: UIColor{
+        switch self.type{
+        case .campSchool:
+            return .blue
+        case .nationalPark:
+            return .orange
+        case .han:
+            return .black
+        case .nightCamp:
+            return .systemMint
+        case .other:
+            return .red
+        }
+    }
+}
+
+
+
+enum Types: String, CaseIterable{
+    case han = "חאן"
+    case campSchool = "מרכז שדה"
+    case nationalPark = "גן לאומי"
+    case nightCamp = "חניון לילה"
+    case other = "קמפינג"
+    
+    static func type(for name:String)-> Types{
+        for t in Types.allCases{
+            if name.contains(t.rawValue){
+                return t
+            }
+        }
+        return .other
+    }
 }
